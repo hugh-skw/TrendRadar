@@ -182,13 +182,14 @@ jobs:
         run: python ai_filter.py
 
       - name: Push to MyNotes Repo
+        if: success()
         env:
           PAT: ${{ secrets.OBSIDIAN_REPO_TOKEN }}
           REPO: ${{ secrets.OBSIDIAN_REPO_NAME }}
         run: |
-          # 1. 只有当文件存在且不为空时才继续
-          if [ ! -s "AI_Ready_Notes.md" ]; then
-            echo "AI_Ready_Notes.md is empty or missing, skipping this run."
+          # 检查文件是否存在且内容是否包含“缺失”或“未发现”字样
+          if [ ! -f "AI_Ready_Notes.md" ] || grep -q "数据源缺失\|未发现" AI_Ready_Notes.md; then
+            echo "⚠️ 内容无效，跳过推送以保持笔记整洁。"
             exit 0
           fi
 
@@ -203,10 +204,8 @@ jobs:
           git config user.name "TrendRadar-Bot"
           git config user.email "bot@github.com"
           git add .
-          
-          # 检查是否有文件改动，没改动就不 commit 防止报错
           if git diff --staged --quiet; then
-            echo "No changes to commit."
+            echo "No new intelligence to push."
           else
             git commit -m "Auto-update Intelligence: $(date +'%Y-%m-%d')"
             git push
