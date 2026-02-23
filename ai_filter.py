@@ -4,87 +4,76 @@ import sqlite3
 import pandas as pd
 from datetime import datetime
 
-# 配置 SiliconFlow
+# 配置
 API_KEY = os.getenv("AI_API_KEY")
-# 接口地址
 API_URL = "https://api.siliconflow.cn/v1/chat/completions"
+
+def is_valid_url(url):
+    """过滤掉各平台的热榜主页/广告链接"""
+    junk_keywords = [
+        'billboard', 'hot-search', 'trending', 
+        'top/list', 'hub', 'search?q=', 'topic/index'
+    ]
+    # 如果链接太短或者包含垃圾关键词，判定为无效
+    if len(str(url)) < 25 or any(k in str(url).lower() for k in junk_keywords):
+        return False
+    return True
 
 def ai_process(content):
     if not API_KEY: return "错误: 未配置 AI_API_KEY"
     
+    # 强制 AI 检查链接有效性
     prompt = (
-        "你是一个专业的情报分析师。请分析以下热搜数据，剔除无意义的娱乐八卦，"
-        "保留技术、社会动态和行业新闻。请用 Markdown 列表输出，包含分类、简要概括和原始链接。\n"
-        f"数据内容：\n{content}"
+        "你是一个极其严谨的情报官。我会给你一份抓取到的数据。\n"
+        "任务要求：\n"
+        "1. 严格剔除标题重复、链接为平台主页（如 billboard, hot-search）的内容。\n"
+        "2. 必须保留具体的详情页链接。如果是单纯的列表页，直接舍弃。\n"
+        "3. 按领域（科技、硬件、社会）分类，每条内容概括核心点。\n"
+        f"待处理数据：\n{content}"
     )
     
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
-    }
-    
-    # 使用 deepseek-v3 或 deepseek-r1
+    headers = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
     payload = {
         "model": "deepseek-ai/DeepSeek-V3", 
         "messages": [
-            {"role": "system", "content": "你是一个高效、客观的简报助手。"},
+            {"role": "system", "content": "你只输出有价值的深度简报，拒绝任何无效的主页链接。"},
             {"role": "user", "content": prompt}
         ],
-        "temperature": 0.3
+        "temperature": 0.2 # 降低随机性，提高筛选严谨度
     }
     
     try:
         response = requests.post(API_URL, headers=headers, json=payload, timeout=90)
-        res_json = response.json()
-        
-        if response.status_code != 200:
-            error_msg = res_json.get('error', {}).get('message', '未知错误')
-            return f"AI 平台报错 (状态码 {response.status_code}): {error_msg}"
-            
-        return res_json['choices'][0]['message']['content']
+        return response.json()['choices'][0]['message']['content']
     except Exception as e:
         return f"请求异常: {str(e)}"
 
 if __name__ == "__main__":
-    # 数据库读取逻辑保持不变
     today = datetime.now().strftime('%Y-%m-%d')
     db_path = f"output/news/{today}.db"
     
     if os.path.exists(db_path):
         try:
             conn = sqlite3.connect(db_path)
-            cursor = conn.cursor()
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-            tables = [row[0] for row in cursor.fetchall() if row[0] != 'sqlite_sequence']
+            # 增加筛选：只读取包含具体 ID 或长路径的新闻，初步过滤掉主页
+            query = "SELECT title, url, source FROM news ORDER BY create_time DESC LIMIT 100"
+            df = pd.read_sql_query(query, conn)
+            conn.close()
             
-            if not tables:
-                refined_md = "数据库中没有找到数据表。"
+            # --- 关键步骤：在喂给 AI 前进行代码级预过滤 ---
+            df['is_real_news'] = df['url'].apply(is_valid_url)
+            clean_df = df[df['is_real_news'] == True].drop(columns=['is_real_news'])
+            
+            if clean_df.empty:
+                refined_md = "⚠️ 警报：今日抓取到的全是平台主页或无效链接，已自动拦截。"
             else:
-                target_table = 'news' if 'news' in tables else tables[0]
-                # 选取前 60 条数据，增加信息覆盖面
-                query = f"SELECT * FROM {target_table} ORDER BY rowid DESC LIMIT 60"
-                df = pd.read_sql_query(query, conn)
-                conn.close()
-                
-                if df.empty:
-                    refined_md = "数据表内没有找到内容。"
-                else:
-                    # 提取前三列 (title, url, source)
-                    content_str = df.iloc[:, :3].to_string(index=False)
-                    refined_md = ai_process(content_str)
+                # 只给 AI 最新的 40 条有效数据，保证质量
+                content_str = clean_df.head(40).to_string(index=False)
+                refined_md = ai_process(content_str)
             
             with open("AI_Ready_Notes.md", "w", encoding="utf-8") as f:
-                f.write(f"---\ntags: #TrendRadar #DeepSeek\ncreated: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n---\n\n{refined_md}")
-            print("✅ 简报处理完成 (SiliconFlow)")
+                f.write(f"---\ntags: #TrendRadar\n---\n\n{refined_md}")
+            print("✅ 深度过滤简报处理完成")
             
         except Exception as e:
-            with open("AI_Ready_Notes.md", "w") as f: f.write(f"数据库读取异常: {e}")
-    else:
-        # 如果找不到今日 DB，尝试找最新的 DB 防止时差导致失败
-        latest_file = ""
-        if os.path.exists("output/news"):
-            dbs = [f for f in os.listdir("output/news") if f.endswith(".db")]
-            if dbs: latest_file = sorted(dbs)[-1]
-        
-        with open("AI_Ready_Notes.md", "w") as f: 
-            f.write(f"未发现今日数据库文件。目录内最新文件为: {latest_file}\n请确认爬虫是否成功运行。")
+            print(f"出错: {e}")
