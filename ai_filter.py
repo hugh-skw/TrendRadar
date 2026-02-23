@@ -7,7 +7,7 @@ from datetime import datetime
 # 1. 使用 v1beta 版本的标准 API 节点
 API_KEY = os.getenv("AI_API_KEY")
 # 注意：模型名称包含在 URL 路径中，且前面必须带 models/
-API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
 
 def ai_process(content):
     if not API_KEY: return "错误: 未配置 AI_API_KEY"
