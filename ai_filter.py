@@ -9,15 +9,16 @@ API_URL = "https://api.openai.com/v1/chat/completions" # 如果用其它平台�
 
 def ai_process(content):
     prompt = f"""
-    你是一个专业的情报筛选专家。请分析以下新闻内容：
-    1. 剔除广告、标题党、重复性极高的低质量简讯。
-    2. 对高质量内容进行分类（如：技术、工具、行业动态）。
-    3. 为每条保留的内容写一个50字以内的深度摘要，并保留原始链接。
+    你是一个专业的情报官。请从以下新闻中筛选出高质量、有深度的技术或行业动态。
+    要求：
+    1. 剔除所有标题党、推销广告和纯粹的八卦。
+    2. 对于保留的内容，请按类别分组（如：AI动态、开发工具、数码硬件）。
+    3. 每条内容提供一个简短的深度总结，并附带原链接。
     
-    待处理内容：
+    待分析数据：
     {content}
     
-    请直接输出 Markdown 格式的结果。
+    请直接输出 Markdown 格式。
     """
     
     headers = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
@@ -27,20 +28,25 @@ def ai_process(content):
         "temperature": 0.3
     }
     
-    response = requests.post(API_URL, headers=headers, json=data)
-    return response.json()['choices'][0]['message']['content']
+    try:
+        response = requests.post(API_URL, headers=headers, json=data)
+        return response.json()['choices'][0]['message']['content']
+    except Exception as e:
+        return f"AI 处理出错: {str(e)}"
 
 if __name__ == "__main__":
-    # TrendRadar 抓取后的结果通常保存在特定目录，假设为 data/
-    # 这里读取最新的结果文件，建议根据 TrendRadar 实际输出路径调整
-    try:
-        with open("result.txt", "r", encoding="utf-8") as f:
-            raw_data = f.read()
+    csv_path = "data/data.csv"
+    if os.path.exists(csv_path):
+        # 读取最新的 20 条数据进行分析，避免 Token 超限
+        df = pd.read_csv(csv_path)
+        latest_data = df.tail(20).to_string()
         
-        refined_md = ai_process(raw_data)
+        refined_md = ai_process(latest_data)
         
+        # 生成 Obsidian 格式文件
         with open("AI_Ready_Notes.md", "w", encoding="utf-8") as f:
-            f.write(f"# 🤖 AI 智能简报 ({datetime.now().strftime('%Y-%m-%d')})\n\n")
+            f.write(f"--- \ncategory: Intelligence\nstatus: #未读\n---\n")
+            f.write(f"# 🤖 TrendRadar AI 简报 ({datetime.now().strftime('%Y-%m-%d')})\n\n")
             f.write(refined_md)
-    except Exception as e:
-        print(f"处理失败: {e}")
+    else:
+        print("未找到数据文件 data/data.csv")
