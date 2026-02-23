@@ -4,48 +4,62 @@ import sqlite3
 import pandas as pd
 from datetime import datetime
 
-# 配置 Gemini
+# 1. 使用 v1beta 版本的标准 API 节点
 API_KEY = os.getenv("AI_API_KEY")
-# 使用 Gemini 1.5 Flash，速度快且免费额度高
-# 1. 切换到 v1 正式版接口
-API_URL = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+# 注意：模型名称包含在 URL 路径中，且前面必须带 models/
+API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
 
 def ai_process(content):
     if not API_KEY: return "错误: 未配置 AI_API_KEY"
     
-    # 稍微优化一下 Prompt，让 Gemini 输出更适合 Obsidian 的格式
     prompt = (
         "你是一个专业的情报分析师。请分析以下热搜数据，剔除无意义的娱乐八卦，"
         "保留技术、社会动态和行业新闻。请用 Markdown 列表输出，包含分类、简要概括和原始链接。\n"
         f"数据内容：\n{content}"
     )
     
+    # 2. 构造符合官方定义的 JSON 结构
     headers = {"Content-Type": "application/json"}
-    data = {
-        "contents": [{
-            "parts": [{"text": prompt}]
-        }]
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {"text": prompt}
+                ]
+            }
+        ],
+        "generationConfig": {
+            "temperature": 0.7,
+            "topK": 40,
+            "topP": 0.95,
+            "maxOutputTokens": 4096,
+            "responseMimeType": "text/plain",
+        }
     }
     
     try:
-        response = requests.post(API_URL, headers=headers, json=data, timeout=60)
+        response = requests.post(API_URL, headers=headers, json=payload, timeout=60)
         res_json = response.json()
         
-        # 调试报错信息
-        if "error" in res_json:
-            error_msg = res_json['error'].get('message', '未知错误')
-            # 如果 v1 还是不行，尝试 v1beta1
-            return f"Gemini API 报错 ({res_json['error'].get('code')}): {error_msg}"
+        # 3. 错误处理增强
+        if response.status_code != 200:
+            error_info = res_json.get('error', {})
+            return f"Gemini API 错误 (状态码 {response.status_code}): {error_info.get('message', '未知错误')}"
             
-        # 提取路径
+        # 4. 解析路径（需处理安全过滤可能导致的空结果）
         try:
-            return res_json['candidates'][0]['content']['parts'][0]['text']
+            candidates = res_json.get('candidates', [])
+            if not candidates:
+                return "Gemini 未返回候选内容（可能是因为触发了安全审核过滤）。"
+            
+            return candidates[0]['content']['parts'][0]['text']
         except (KeyError, IndexError):
-            return f"解析失败，API 返回结果异常: {res_json}"
+            return f"解析结果字段失败。原始响应: {res_json}"
             
     except Exception as e:
-        return f"Gemini 请求异常: {str(e)}"
-        
+        return f"网络或脚本执行异常: {str(e)}"
+
+# 下面的 __main__ 部分保持不变（即之前的数据库读取逻辑）
 if __name__ == "__main__":
     today = datetime.now().strftime('%Y-%m-%d')
     db_path = f"output/news/{today}.db"
