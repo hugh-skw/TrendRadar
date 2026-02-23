@@ -186,21 +186,28 @@ jobs:
           PAT: ${{ secrets.OBSIDIAN_REPO_TOKEN }}
           REPO: ${{ secrets.OBSIDIAN_REPO_NAME }}
         run: |
-          # 1. 克隆 Obsidian 仓库
+          # 1. 只有当文件存在且不为空时才继续
+          if [ ! -s "AI_Ready_Notes.md" ]; then
+            echo "AI_Ready_Notes.md is empty or missing, skipping this run."
+            exit 0
+          fi
+
           git clone https://x-access-token:${PAT}@github.com/${REPO}.git temp_obsidian
-          
-          # 2. 确保目标目录存在
           TARGET_DIR="temp_obsidian/20_TrendRadar"
           mkdir -p "$TARGET_DIR"
           
-          # 3. 复制生成的 Markdown 文件
           FILENAME="TrendRadar-$(date +'%Y-%m-%d').md"
           cp AI_Ready_Notes.md "$TARGET_DIR/$FILENAME"
           
-          # 4. 提交并同步
           cd temp_obsidian
           git config user.name "TrendRadar-Bot"
           git config user.email "bot@github.com"
           git add .
-          git commit -m "Auto-update Intelligence: $(date +'%Y-%m-%d')"
-          git push
+          
+          # 检查是否有文件改动，没改动就不 commit 防止报错
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Auto-update Intelligence: $(date +'%Y-%m-%d')"
+            git push
+          fi
