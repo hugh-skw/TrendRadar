@@ -5,8 +5,8 @@ import pandas as pd
 from datetime import datetime
 
 # 配置
-API_KEY = os.getenv("AI_API_KEY")
-API_URL = "https://api.openai.com/v1/chat/completions" 
+API_KEY = os.getenv("AI_API_KEY") 
+API_URL = "https://api.siliconflow.cn/v1/chat/completions"
 
 def ai_process(content):
     if not API_KEY: return "错误: GitHub Secrets 中未配置 AI_API_KEY"
@@ -14,7 +14,7 @@ def ai_process(content):
     prompt = f"你是一个情报专家，请从以下热搜数据中挑选最有价值的新闻，分类总结并提供Markdown格式输出：\n{content}"
     headers = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
     data = {
-        "model": "gpt-4o-mini", 
+        "model": "deepseek-ai/DeepSeek-R1", 
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.5
     }
