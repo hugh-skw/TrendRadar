@@ -1,0 +1,53 @@
+name: AI Filter & Push to Obsidian
+
+on:
+  workflow_run:
+    workflows: ["TrendRadar"] # 假设原项目抓取脚本叫 TrendRadar
+    types: [completed]
+  workflow_dispatch: # 支持手动触发
+
+jobs:
+  filter_and_sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout TrendRadar Data
+        uses: actions/checkout@v4
+
+      - name: AI Processing (DeepSeek)
+        # 这里假设你已经按照上一步配置了 AI_API_KEY
+        # 脚本逻辑：读取抓取的 json/yaml，调用 AI 总结，输出为 Markdown
+        run: |
+          echo "正在调用 AI 进行质量筛选与摘要生成..."
+          # 这里可以运行一个简单的 python 脚本执行逻辑
+          # 如果不想写代码，可以直接用现成的工具或简单的 Shell 拼凑
+
+      - name: Pushing to Obsidian Repo
+        run: |
+          # 1. 克隆你的笔记仓库
+          git clone https://x-access-token:${{ secrets.OBSIDIAN_REPO_TOKEN }}@github.com/你的用户名/你的笔记仓库名.git obsidian_vault
+          
+          # 2. 准备存放路径（例如放在 Inbox/TrendRadar/日期.md）
+          DIR="obsidian_vault/Inbox/TrendRadar/$(date +'%Y-%m-%d')"
+          mkdir -p "$DIR"
+          
+          # 3. 将抓取的数据写入文件 (这里以输出变量为示例)
+          cat <<EOF > "$DIR/Daily_Intelligence.md"
+          ---
+          tags: #Intelligence #AI-Summary
+          date: $(date +'%Y-%m-%d %H:%M')
+          ---
+          # 🤖 AI 智能简报
+          
+          > [!abstract] 筛选原则
+          > 已剔除低质量营销号及重复内容，仅保留具有技术参考价值的信息。
+          
+          $(cat processed_content.md) 
+          EOF
+
+          # 4. 提交并推送
+          cd obsidian_vault
+          git config user.name "AI-Assistant"
+          git config user.email "ai@trendradar.bot"
+          git add .
+          git commit -m "Update Daily Intelligence: $(date +'%Y-%m-%d')"
+          git push
