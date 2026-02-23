@@ -7,38 +7,45 @@ from datetime import datetime
 # 配置 Gemini
 API_KEY = os.getenv("AI_API_KEY")
 # 使用 Gemini 1.5 Flash，速度快且免费额度高
-API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+# 1. 切换到 v1 正式版接口
+API_URL = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={API_KEY}"
 
 def ai_process(content):
     if not API_KEY: return "错误: 未配置 AI_API_KEY"
     
-    prompt = f"你是一个情报专家，请从以下热搜数据中挑选最有价值的新闻，分类总结并提供Markdown格式输出：\n{content}"
+    # 稍微优化一下 Prompt，让 Gemini 输出更适合 Obsidian 的格式
+    prompt = (
+        "你是一个专业的情报分析师。请分析以下热搜数据，剔除无意义的娱乐八卦，"
+        "保留技术、社会动态和行业新闻。请用 Markdown 列表输出，包含分类、简要概括和原始链接。\n"
+        f"数据内容：\n{content}"
+    )
     
     headers = {"Content-Type": "application/json"}
-    # Gemini 的数据结构
     data = {
         "contents": [{
             "parts": [{"text": prompt}]
-        }],
-        "generationConfig": {
-            "temperature": 0.5,
-            "maxOutputTokens": 2048,
-        }
+        }]
     }
     
     try:
         response = requests.post(API_URL, headers=headers, json=data, timeout=60)
         res_json = response.json()
         
-        # 错误检查
+        # 调试报错信息
         if "error" in res_json:
-            return f"Gemini API 报错: {res_json['error'].get('message', '未知错误')}"
+            error_msg = res_json['error'].get('message', '未知错误')
+            # 如果 v1 还是不行，尝试 v1beta1
+            return f"Gemini API 报错 ({res_json['error'].get('code')}): {error_msg}"
             
-        # 提取 Gemini 的返回文字
-        return res_json['candidates'][0]['content']['parts'][0]['text']
+        # 提取路径
+        try:
+            return res_json['candidates'][0]['content']['parts'][0]['text']
+        except (KeyError, IndexError):
+            return f"解析失败，API 返回结果异常: {res_json}"
+            
     except Exception as e:
         return f"Gemini 请求异常: {str(e)}"
-
+        
 if __name__ == "__main__":
     today = datetime.now().strftime('%Y-%m-%d')
     db_path = f"output/news/{today}.db"
