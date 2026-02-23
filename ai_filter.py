@@ -5,7 +5,7 @@ import pandas as pd
 from datetime import datetime
 
 # 配置
-API_KEY = os.getenv("AI_API_KEY")
+API_KEY = os.getenv("FILTER_AI_API_KEY")
 API_URL = "https://api.siliconflow.cn/v1/chat/completions"
 
 def is_valid_url(url):
@@ -20,7 +20,7 @@ def is_valid_url(url):
     return True
 
 def ai_process(content):
-    if not API_KEY: return "错误: 未配置 AI_API_KEY"
+    if not API_KEY: return "错误: 未配置 FILTER_AI_API_KEY"
     
     # 强制 AI 检查链接有效性
     prompt = (
