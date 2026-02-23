@@ -1,69 +1,57 @@
 import os
 import requests
+import sqlite3
 import pandas as pd
 from datetime import datetime
 
-# 调试打印：查看当前环境
-print("--- 诊断模式启动 ---")
-print(f"当前工作目录: {os.getcwd()}")
-if os.path.exists("data"):
-    print(f"data 目录下的文件: {os.listdir('data')}")
-else:
-    print("警告: 根目录下未发现 data 文件夹")
-
-# 配置 OpenAI 参数
+# 配置
 API_KEY = os.getenv("AI_API_KEY")
 API_URL = "https://api.openai.com/v1/chat/completions" 
 
 def ai_process(content):
-    if not API_KEY:
-        return "错误: 未配置 AI_API_KEY"
-    
-    prompt = f"请简要总结以下新闻并按格式输出 Markdown:\n{content}"
+    if not API_KEY: return "错误: 未配置 AI_API_KEY"
+    prompt = f"你是一个情报专家，请从以下热搜数据中挑选5-10条最有价值的新闻，进行分类总结并提供Markdown格式输出：\n{content}"
     headers = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
     data = {
         "model": "gpt-4o-mini", 
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.5
     }
-    
     try:
         response = requests.post(API_URL, headers=headers, json=data, timeout=60)
-        response.raise_for_status()
         return response.json()['choices'][0]['message']['content']
     except Exception as e:
-        print(f"API 请求异常: {e}")
-        return None
+        return f"AI 处理异常: {e}"
 
 if __name__ == "__main__":
-    # 自动探测 TrendRadar 可能生成的各种数据路径
-    possible_paths = ["data/data.csv", "data.csv", "data/result.csv"]
-    target_path = None
+    # 根据日志，数据库位于 output/news/YYYY-MM-DD.db
+    today = datetime.now().strftime('%Y-%m-%d')
+    db_path = f"output/news/{today}.db"
     
-    for p in possible_paths:
-        if os.path.exists(p):
-            target_path = p
-            print(f"成功找到数据源: {p}")
-            break
+    print(f"--- 尝试读取数据库: {db_path} ---")
     
-    if target_path:
+    if os.path.exists(db_path):
         try:
-            df = pd.read_csv(target_path)
-            # 如果内容为空，生成占位符防止报错
+            # 连接数据库读取新闻
+            conn = sqlite3.connect(db_path)
+            # TrendRadar 的表名通常是 news
+            query = "SELECT title, url, source FROM news ORDER BY create_time DESC LIMIT 50"
+            df = pd.read_sql_query(query, conn)
+            conn.close()
+            
             if df.empty:
-                refined_md = "今日无新资讯更新。"
+                refined_md = "数据库中暂无今日新增数据。"
             else:
-                latest_data = df.tail(20).to_string()
-                refined_md = ai_process(latest_data) or "AI 处理未能生成内容。"
+                content_str = df.to_string(index=False)
+                refined_md = ai_process(content_str)
             
             with open("AI_Ready_Notes.md", "w", encoding="utf-8") as f:
-                f.write(refined_md)
-            print("✅ 成功生成 AI_Ready_Notes.md")
+                f.write(f"---\ntags: #TrendRadar\n---\n{refined_md}")
+            print("✅ 简报已成功根据数据库内容生成")
             
         except Exception as e:
-            print(f"数据解析失败: {e}")
+            print(f"数据库读取失败: {e}")
+            with open("AI_Ready_Notes.md", "w") as f: f.write(f"数据库读取失败: {e}")
     else:
-        print("❌ 未能找到任何数据文件，无法生成简报。")
-        # 创建一个空文件防止 Action 报错中止
-        with open("AI_Ready_Notes.md", "w") as f:
-            f.write("数据源缺失，请检查爬虫状态。")
+        print(f"❌ 未发现数据库文件: {db_path}")
+        with open("AI_Ready_Notes.md", "w") as f: f.write("今日尚未生成数据库文件，请确认爬虫是否运行。")
