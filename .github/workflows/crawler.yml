@@ -168,45 +168,45 @@ jobs:
           GITHUB_ACTIONS: true
         run: python -m trendradar
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
+      # - name: Set up Python
+      #   uses: actions/setup-python@v4
+      #   with:
+      #     python-version: '3.9'
 
-      - name: Install AI dependencies
-        run: pip install requests pandas
+      # - name: Install AI dependencies
+      #   run: pip install requests pandas
 
-      - name: AI Filtering and Formatting
-        env:
-          FILTER_AI_API_KEY: ${{ secrets.FILTER_AI_API_KEY }}
-        run: python ai_filter.py
+      # - name: AI Filtering and Formatting
+      #   env:
+      #     FILTER_AI_API_KEY: ${{ secrets.FILTER_AI_API_KEY }}
+      #   run: python ai_filter.py
 
-      - name: Push to MyNotes Repo
-        if: success()
-        env:
-          PAT: ${{ secrets.OBSIDIAN_REPO_TOKEN }}
-          REPO: ${{ secrets.OBSIDIAN_REPO_NAME }}
-        run: |
-          # 检查文件是否存在且内容是否包含“缺失”或“未发现”字样
-          if [ ! -f "AI_Ready_Notes.md" ] || grep -q "数据源缺失\|未发现" AI_Ready_Notes.md; then
-            echo "⚠️ 内容无效，跳过推送以保持笔记整洁。"
-            exit 0
-          fi
+      # - name: Push to MyNotes Repo
+      #   if: success()
+      #   env:
+      #     PAT: ${{ secrets.OBSIDIAN_REPO_TOKEN }}
+      #     REPO: ${{ secrets.OBSIDIAN_REPO_NAME }}
+      #   run: |
+      #     # 检查文件是否存在且内容是否包含“缺失”或“未发现”字样
+      #     if [ ! -f "AI_Ready_Notes.md" ] || grep -q "数据源缺失\|未发现" AI_Ready_Notes.md; then
+      #       echo "⚠️ 内容无效，跳过推送以保持笔记整洁。"
+      #       exit 0
+      #     fi
 
-          git clone https://x-access-token:${PAT}@github.com/${REPO}.git temp_obsidian
-          TARGET_DIR="temp_obsidian/20_TrendRadar"
-          mkdir -p "$TARGET_DIR"
+      #     git clone https://x-access-token:${PAT}@github.com/${REPO}.git temp_obsidian
+      #     TARGET_DIR="temp_obsidian/20_TrendRadar"
+      #     mkdir -p "$TARGET_DIR"
           
-          FILENAME="TrendRadar-$(date +'%Y-%m-%d').md"
-          cp AI_Ready_Notes.md "$TARGET_DIR/$FILENAME"
+      #     FILENAME="TrendRadar-$(date +'%Y-%m-%d').md"
+      #     cp AI_Ready_Notes.md "$TARGET_DIR/$FILENAME"
           
-          cd temp_obsidian
-          git config user.name "TrendRadar-Bot"
-          git config user.email "bot@github.com"
-          git add .
-          if git diff --staged --quiet; then
-            echo "No new intelligence to push."
-          else
-            git commit -m "Auto-update Intelligence: $(date +'%Y-%m-%d')"
-            git push
-          fi
+      #     cd temp_obsidian
+      #     git config user.name "TrendRadar-Bot"
+      #     git config user.email "bot@github.com"
+      #     git add .
+      #     if git diff --staged --quiet; then
+      #       echo "No new intelligence to push."
+      #     else
+      #       git commit -m "Auto-update Intelligence: $(date +'%Y-%m-%d')"
+      #       git push
+      #     fi
