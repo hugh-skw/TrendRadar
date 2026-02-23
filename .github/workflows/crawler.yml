@@ -178,7 +178,7 @@ jobs:
 
       - name: AI Filtering and Formatting
         env:
-          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+          FILTER_AI_API_KEY: ${{ secrets.FILTER_AI_API_KEY }}
         run: python ai_filter.py
 
       - name: Push to MyNotes Repo
