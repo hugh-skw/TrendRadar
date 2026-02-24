@@ -104,10 +104,10 @@ rss:
     url: "https://news.google.com/rss/search?q=site:reuters.com+business"
     enabled: true
 
-  - id: "ap-world"
-    name: "AP News"
-    url: "https://apnews.com/hub/apf-topnews"
-    enabled: true
+  # - id: "ap-world"
+  #   name: "AP News"
+  #   url: "https://apnews.com/hub/apf-topnews"
+  #   enabled: true
 
 
   # ========= 金融 / 宏观 =========
@@ -185,17 +185,17 @@ rss:
 
 
   # ========= bounty平台 =========
-  - id: "hackerone"
-    name: "HackerOne Hacktivity"
-    url: "https://hackerone.com/hacktivity.rss"
-    enabled: true
-    max_age_days: 1
+  # - id: "hackerone"
+  #   name: "HackerOne Hacktivity"
+  #   url: "https://hackerone.com/hacktivity.rss"
+  #   enabled: true
+  #   max_age_days: 1
 
-  - id: "bugcrowd"
-    name: "Bugcrowd Blog"
-    url: "https://www.bugcrowd.com/blog/feed/"
-    enabled: true
-    max_age_days: 1
+  # - id: "bugcrowd"
+  #   name: "Bugcrowd Blog"
+  #   url: "https://www.bugcrowd.com/blog/feed/"
+  #   enabled: true
+  #   max_age_days: 1
 
   # ========= exploit数据库 =========
   - id: "exploitdb"
@@ -204,11 +204,11 @@ rss:
     enabled: true
     max_age_days: 1
 
-  - id: "packetstorm"
-    name: "PacketStorm"
-    url: "https://packetstormsecurity.com/files/feed/"
-    enabled: true
-    max_age_days: 1
+  # - id: "packetstorm"
+  #   name: "PacketStorm"
+  #   url: "https://packetstormsecurity.com/files/feed/"
+  #   enabled: true
+  #   max_age_days: 1
 
     # 自定义源示例
     # - id: "custom-feed"
@@ -237,7 +237,7 @@ rss:
 #    • 适用场景：避免重复信息干扰
 # ===============================================================
 report:
-  mode: "incremental"                     # 可选: daily | current | incremental
+  mode: "current"                     # 可选: daily | current | incremental
                                       # ⚠️ 开启调度系统后，此值会被当前时间段的 report_mode 覆盖
 
 
