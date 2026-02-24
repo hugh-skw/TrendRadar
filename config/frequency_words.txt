@@ -30,7 +30,7 @@
 [GLOBAL_FILTER]
 # 过滤标题党
 /celebrity|movie|actor|football|nba|fashion|music/
-/八卦|明星|娱乐|震惊/
+/八卦|明星|娱乐|震惊|票房/
 /彩票开奖/
 
 
