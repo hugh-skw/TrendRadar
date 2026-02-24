@@ -55,41 +55,9 @@ schedule:
 platforms: 
   enabled: false                      # 是否启用热榜平台抓取
   sources:
-    - id: "hacker-news"
-      name: "Hacker News"
-  # sources:
-  #   - id: "world news"
-  #     name: 全球新闻
-  #     type: rss
-  #     enabled: true
-  #     rss_sources:
-  
-  #       - name: Reuters World
-  #         url: https://news.google.com/rss/search?q=site:reuters.com+world
-  
-  #       - name: Bloomberg Economy
-  #         url: https://news.google.com/rss/search?q=site:bloomberg.com+economy
-  
-  #       - name: Financial Times
-  #         url: https://news.google.com/rss/search?q=site:ft.com
-  
-  #   - id: "security"
-  #     name: 安全
-  #     type: rss
-  #     enabled: true
-  #     rss_sources:
-  
-  #       - name: PortSwigger
-  #         url: https://portswigger.net/research/rss
-  
-  #       - name: Hacker News
-  #         url: https://hnrss.org/frontpage
-  
-  #       - name: NVD
-  #         url: https://nvd.nist.gov/feeds/xml/cve/misc/nvd-rss.xml
-
-    # - id: "toutiao"
-    #   name: "今日头条"
+    - id: "toutiao"
+      name: "今日头条"
+      enabled: false
   #   - id: "baidu"
   #     name: "百度热搜"
   #   - id: "wallstreetcn-hot"
@@ -147,101 +115,120 @@ rss:
   # - 0：禁用此频道的新鲜度过滤，推送所有文章
   feeds:
   # ========= 世界通讯社（事实流核心）=========
-  - id: reuters-world
-    name: Reuters World
-    url: https://news.google.com/rss/search?q=site:reuters.com+world
+  - id: "reuters-world"
+    name: "Reuters World"
+    url: "https://news.google.com/rss/search?q=site:reuters.com+world"
+    enabled: true
 
-  - id: reuters-business
-    name: Reuters Business
-    url: https://news.google.com/rss/search?q=site:reuters.com+business
+  - id: "reuters-business"
+    name: "Reuters Business"
+    url: "https://news.google.com/rss/search?q=site:reuters.com+business"
+    enabled: true
 
-  - id: ap-world
-    name: AP News
-    url: https://apnews.com/hub/apf-topnews
+  - id: "ap-world"
+    name: "AP News"
+    url: "https://apnews.com/hub/apf-topnews"
+    enabled: true
 
 
   # ========= 金融 / 宏观 =========
-  - id: ft-world
-    name: Financial Times
-    url: https://www.ft.com/rss/home
+  - id: "ft-world"
+    name: "Financial Times"
+    url: "https://www.ft.com/rss/home"
+    enabled: true
 
-  - id: reuters-business
-    name: Reuters Business
-    url: https://ir.thomsonreuters.com/rss/news-releases.xml
+  - id: "reuters-business"
+    name: "Reuters Business"
+    url: "https://ir.thomsonreuters.com/rss/news-releases.xml"
+    enabled: true
 
-  - id: bloomberg-economy
-    name: Bloomberg Economy
-    url: https://feeds.bloomberg.com/economics/news.rss
+  - id: "bloomberg-economy"
+    name: "Bloomberg Economy"
+    url: "https://feeds.bloomberg.com/economics/news.rss"
+    enabled: true
 
 
   # ========= 科技行业 =========
-  - id: ars
-    name: Ars Technica
-    url: http://feeds.arstechnica.com/arstechnica/index
+  - id: "ars"
+    name: "Ars Technica"
+    url: "http://feeds.arstechnica.com/arstechnica/index"
+    enabled: true
 
-  - id: verge-tech
-    name: The Verge Tech
-    url: https://www.theverge.com/rss/index.xml
+  - id: "verge-tech"
+    name: "The Verge Tech"
+    url: "https://www.theverge.com/rss/index.xml"
+    enabled: true
 
 
   # ========= 技术社区 =========
-  - id: hackernews
-    name: Hacker News
-    url: https://hnrss.org/frontpage
+  - id: "hackernews"
+    name: "Hacker News"
+    url: "https://hnrss.org/frontpage"
+    enabled: true
 
 
   # ========= 安全新闻 =========
-  - id: bleepingcomputer
-    name: BleepingComputer
-    url: https://www.bleepingcomputer.com/feed/
+  - id: "bleepingcomputer"
+    name: "BleepingComputer"
+    url: "https://www.bleepingcomputer.com/feed/"
+    enabled: true
 
-  - id: hackernews-blog
-    name: The Hacker News Security
-    url: https://feeds.feedburner.com/TheHackersNews
+  - id: "hackernews-blog"
+    name: "The Hacker News Security"
+    url: "https://feeds.feedburner.com/TheHackersNews"
+    enabled: true
 
 
   # ========= CVE官方 =========
-  - id: nvd
-    name: NVD CVE
-    url: https://nvd.nist.gov/feeds/xml/cve/misc/nvd-rss.xml
+  - id: "nvd"
+    name: "NVD CVE"
+    url: "https://nvd.nist.gov/feeds/xml/cve/misc/nvd-rss.xml"
     max_age_days: 1
+    enabled: true
 
-  - id: cisa
-    name: CISA Alerts
-    url: https://www.cisa.gov/cybersecurity-advisories/all.xml
+  - id: "cisa"
+    name: "CISA Alerts"
+    url: "https://www.cisa.gov/cybersecurity-advisories/all.xml"
     max_age_days: 1
+    enabled: true
 
 
   # ========= 安全研究 =========
-  - id: projectzero
-    name: Google Project Zero
-    url: https://googleprojectzero.blogspot.com/feeds/posts/default
+  - id: "projectzero"
+    name: "Google Project Zero"
+    url: "https://googleprojectzero.blogspot.com/feeds/posts/default"
+    enabled: true
 
-  - id: portswigger
-    name: PortSwigger Research
-    url: https://portswigger.net/research/rss
+  - id: "portswigger"
+    name: "PortSwigger Research"
+    url: "https://portswigger.net/research/rss"
+    enabled: true
 
 
   # ========= bounty平台 =========
-  - id: hackerone
-    name: HackerOne Hacktivity
-    url: https://hackerone.com/hacktivity.rss
+  - id: "hackerone"
+    name: "HackerOne Hacktivity"
+    url: "https://hackerone.com/hacktivity.rss"
+    enabled: true
     max_age_days: 1
 
-  - id: bugcrowd
-    name: Bugcrowd Blog
-    url: https://www.bugcrowd.com/blog/feed/
-
+  - id: "bugcrowd"
+    name: "Bugcrowd Blog"
+    url: "https://www.bugcrowd.com/blog/feed/"
+    enabled: true
+    max_age_days: 1
 
   # ========= exploit数据库 =========
-  - id: exploitdb
-    name: Exploit Database
-    url: https://www.exploit-db.com/rss.xml
+  - id: "exploitdb"
+    name: "Exploit Database"
+    url: "https://www.exploit-db.com/rss.xml"
+    enabled: true
     max_age_days: 1
 
-  - id: packetstorm
-    name: PacketStorm
-    url: https://packetstormsecurity.com/files/feed/
+  - id: "packetstorm"
+    name: "PacketStorm"
+    url: "https://packetstormsecurity.com/files/feed/"
+    enabled: true
     max_age_days: 1
 
     # 自定义源示例
