@@ -54,6 +54,9 @@ schedule:
 # ===============================================================
 platforms: 
   enabled: false                      # 是否启用热榜平台抓取
+  sources:
+    - id: "hacker-news"
+      name: "Hacker News"
   # sources:
   #   - id: "world news"
   #     name: 全球新闻
