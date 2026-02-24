@@ -53,7 +53,7 @@ schedule:
 #   - name: 显示名称（可自定义，修改后不影响运行）
 # ===============================================================
 platforms:
-  enabled: true                         # 是否启用热榜平台抓取
+  enabled: false                         # 是否启用热榜平台抓取
   sources:
     - id: "toutiao"
       name: "今日头条"
@@ -113,20 +113,103 @@ rss:
   # - 正整数：覆盖全局设置，只推送此天数内的文章
   # - 0：禁用此频道的新鲜度过滤，推送所有文章
   feeds:
-    - id: "hacker-news"
-      name: "Hacker News"
-      url: "https://hnrss.org/frontpage"
-      # max_age_days: 1               # 示例：只推送1天内的文章
+  # ========= 世界通讯社（事实流核心）=========
+  - id: reuters-world
+    name: Reuters World
+    url: https://news.google.com/rss/search?q=site:reuters.com+world
 
-    - id: "ruanyifeng"
-      name: "阮一峰的网络日志"
-      url: "http://www.ruanyifeng.com/blog/atom.xml"
-      # max_age_days: 7               # 示例：推送7天内的文章（更新较慢的博客）
-    
-    - id: "yahoo-finance"
-      name: "雅虎财经"
-      url: "https://finance.yahoo.com/news/rssindex"
-      enabled: false                  # 禁用
+  - id: reuters-business
+    name: Reuters Business
+    url: https://news.google.com/rss/search?q=site:reuters.com+business
+
+  - id: ap-world
+    name: AP News
+    url: https://apnews.com/hub/apf-topnews
+
+
+  # ========= 金融 / 宏观 =========
+  - id: ft-world
+    name: Financial Times
+    url: https://www.ft.com/rss/home
+
+  - id: reuters-business
+    name: Reuters Business
+    url: https://ir.thomsonreuters.com/rss/news-releases.xml
+
+  - id: bloomberg-economy
+    name: Bloomberg Economy
+    url: https://feeds.bloomberg.com/economics/news.rss
+
+
+  # ========= 科技行业 =========
+  - id: ars
+    name: Ars Technica
+    url: http://feeds.arstechnica.com/arstechnica/index
+
+  - id: verge-tech
+    name: The Verge Tech
+    url: https://www.theverge.com/rss/index.xml
+
+
+  # ========= 技术社区 =========
+  - id: hackernews
+    name: Hacker News
+    url: https://hnrss.org/frontpage
+
+
+  # ========= 安全新闻 =========
+  - id: bleepingcomputer
+    name: BleepingComputer
+    url: https://www.bleepingcomputer.com/feed/
+
+  - id: hackernews-blog
+    name: The Hacker News Security
+    url: https://feeds.feedburner.com/TheHackersNews
+
+
+  # ========= CVE官方 =========
+  - id: nvd
+    name: NVD CVE
+    url: https://nvd.nist.gov/feeds/xml/cve/misc/nvd-rss.xml
+    max_age_days: 1
+
+  - id: cisa
+    name: CISA Alerts
+    url: https://www.cisa.gov/cybersecurity-advisories/all.xml
+    max_age_days: 1
+
+
+  # ========= 安全研究 =========
+  - id: projectzero
+    name: Google Project Zero
+    url: https://googleprojectzero.blogspot.com/feeds/posts/default
+
+  - id: portswigger
+    name: PortSwigger Research
+    url: https://portswigger.net/research/rss
+
+
+  # ========= bounty平台 =========
+  - id: hackerone
+    name: HackerOne Hacktivity
+    url: https://hackerone.com/hacktivity.rss
+    max_age_days: 1
+
+  - id: bugcrowd
+    name: Bugcrowd Blog
+    url: https://www.bugcrowd.com/blog/feed/
+
+
+  # ========= exploit数据库 =========
+  - id: exploitdb
+    name: Exploit Database
+    url: https://www.exploit-db.com/rss.xml
+    max_age_days: 1
+
+  - id: packetstorm
+    name: PacketStorm
+    url: https://packetstormsecurity.com/files/feed/
+    max_age_days: 1
 
     # 自定义源示例
     # - id: "custom-feed"
