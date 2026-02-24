@@ -85,8 +85,8 @@ platforms:
   #       - name: NVD
   #         url: https://nvd.nist.gov/feeds/xml/cve/misc/nvd-rss.xml
   sources:
-    - id: "toutiao"
-      name: "今日头条"
+    # - id: "toutiao"
+    #   name: "今日头条"
   #   - id: "baidu"
   #     name: "百度热搜"
   #   - id: "wallstreetcn-hot"
@@ -268,7 +268,7 @@ rss:
 #    • 适用场景：避免重复信息干扰
 # ===============================================================
 report:
-  mode: "incremental"                     # 可选: daily | current | incremental
+  mode: "current"                     # 可选: daily | current | incremental
                                       # ⚠️ 开启调度系统后，此值会被当前时间段的 report_mode 覆盖
 
 
