@@ -55,7 +55,8 @@ schedule:
 platforms:
   enabled: true                      # 是否启用热榜平台抓取
   sources:
-    - name: 全球新闻
+    - id: "world news"
+      name: 全球新闻
       type: rss
       enabled: true
       rss_sources:
@@ -69,7 +70,8 @@ platforms:
         - name: Financial Times
           url: https://news.google.com/rss/search?q=site:ft.com
   
-    - name: 安全
+    - id: "security"
+      name: 安全
       type: rss
       enabled: true
       rss_sources:
@@ -83,7 +85,7 @@ platforms:
         - name: NVD
           url: https://nvd.nist.gov/feeds/xml/cve/misc/nvd-rss.xml
   # sources:
-  # - id: "toutiao"
+  #   - id: "toutiao"
   #     name: "今日头条"
   #   - id: "baidu"
   #     name: "百度热搜"
