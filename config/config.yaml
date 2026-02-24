@@ -84,7 +84,7 @@ platforms:
   
   #       - name: NVD
   #         url: https://nvd.nist.gov/feeds/xml/cve/misc/nvd-rss.xml
-  sources:
+
     # - id: "toutiao"
     #   name: "今日头条"
   #   - id: "baidu"
