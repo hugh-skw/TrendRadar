@@ -54,35 +54,36 @@ schedule:
 # ===============================================================
 platforms:
   enabled: true                      # 是否启用热榜平台抓取
-  - name: global_news
-    type: rss
-    enabled: true
-    rss_sources:
-
-      - name: Reuters World
-        url: https://news.google.com/rss/search?q=site:reuters.com+world
-
-      - name: Bloomberg Economy
-        url: https://news.google.com/rss/search?q=site:bloomberg.com+economy
-
-      - name: Financial Times
-        url: https://news.google.com/rss/search?q=site:ft.com
-
-  - name: security
-    type: rss
-    enabled: true
-    rss_sources:
-
-      - name: PortSwigger
-        url: https://portswigger.net/research/rss
-
-      - name: Hacker News
-        url: https://hnrss.org/frontpage
-
-      - name: NVD
-        url: https://nvd.nist.gov/feeds/xml/cve/misc/nvd-rss.xml
+  sources:
+    - name: 全球新闻
+      type: rss
+      enabled: true
+      rss_sources:
+  
+        - name: Reuters World
+          url: https://news.google.com/rss/search?q=site:reuters.com+world
+  
+        - name: Bloomberg Economy
+          url: https://news.google.com/rss/search?q=site:bloomberg.com+economy
+  
+        - name: Financial Times
+          url: https://news.google.com/rss/search?q=site:ft.com
+  
+    - name: 安全
+      type: rss
+      enabled: true
+      rss_sources:
+  
+        - name: PortSwigger
+          url: https://portswigger.net/research/rss
+  
+        - name: Hacker News
+          url: https://hnrss.org/frontpage
+  
+        - name: NVD
+          url: https://nvd.nist.gov/feeds/xml/cve/misc/nvd-rss.xml
   # sources:
-  #   - id: "toutiao"
+  # - id: "toutiao"
   #     name: "今日头条"
   #   - id: "baidu"
   #     name: "百度热搜"
